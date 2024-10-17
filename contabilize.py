@@ -24,7 +24,6 @@ def manhattan_distance(start, end):
     Função para calcular a distância de Manhattan
     """
     return abs(start[0] - end[0]) + abs(start[1] - end[1])
-
 def find_path(grid, start, end):
     """
     Função para encontrar o caminho entre dois pinos
@@ -35,6 +34,9 @@ def find_path(grid, start, end):
     pq = []
     heapq.heappush(pq, (0, 0, start))  # Fila de prioridade (custo, comprimento, posição)
     parent_map = {start: None}  # Mapear cada célula para o pai, para reconstruir o caminho
+
+    if start == end:  # Adicione esta verificação
+        return [start], 0
 
     while pq:
         cost, path_length, current = heapq.heappop(pq)
@@ -57,6 +59,7 @@ def find_path(grid, start, end):
                     new_cost = path_length + 1 + manhattan_distance((new_row, new_col), end)
                     parent_map[(new_row, new_col)] = current
                     heapq.heappush(pq, (new_cost, path_length + 1, (new_row, new_col)))
+                    visited.add((new_row, new_col))  # Certifique-se de adicionar à lista de visitados
 
     return None, 0  # Sem caminho encontrado
 
@@ -82,7 +85,7 @@ def connect_pins(grid, pairs):
             connected_pairs += 1
             total_path_length += path_length
             mark_path(grid, path, marker)
-        else:
-            print(f"Nenhum caminho encontrado para pinos em {start} e {end}.")
+        # else:
+            # print(f"nenhum caminho encontrado para pinos em {start} e {end}.")
 
     return connected_pairs, total_path_length
