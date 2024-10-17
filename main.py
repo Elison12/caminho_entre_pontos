@@ -1,65 +1,46 @@
-import heapq
+import sys
 
-# Função para calcular a distância de Manhattan
-def manhattan_distance(start, end):
-    return abs(start[0] - end[0]) + abs(start[1] - end[1])
+import numpy as np
+from contabilize import connect_pins, find_specific_pairs
+from escrever_arquivo import write_results_to_file
+import generate_image
+from ler_arquivo import ler_matriz_de_arquivo
 
-# Função para encontrar o caminho entre dois pinos
-def find_path(grid, start, end):
-    rows, cols = len(grid), len(grid[0])
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Cima, baixo, esquerda, direita
-    visited = set()
-    pq = []
-    heapq.heappush(pq, (0, start))  # Fila de prioridade (custo, posição)
-    parent_map = {start: None}  # Mapear cada célula para o pai, para reconstruir o caminho
 
-    while pq:
-        cost, current = heapq.heappop(pq)
+if __name__ == '__main__':
 
-        if current == end:
-            # Reconstruir o caminho a partir do mapa de pais
-            path = []
-            while current:
-                path.append(current)
-                current = parent_map[current]
-            return path[::-1]  # Inverter o caminho
+    caminho_arquivo = sys.argv[1]
 
-        visited.add(current)
+    grid = ler_matriz_de_arquivo(caminho_arquivo)
 
-        for direction in directions:
-            new_row, new_col = current[0] + direction[0], current[1] + direction[1]
+    target = [2, 3, 4]
+    posicoes = find_specific_pairs(grid=grid, targets=target)
+    
+        
+    pRed = posicoes.get(2)[0]
+    qRed = posicoes.get(2)[1]
 
-            if 0 <= new_row < rows and 0 <= new_col < cols and (new_row, new_col) not in visited:
-                if grid[new_row][new_col] == 0 or (new_row, new_col) == end:  # Espaço vazio ou destino
-                    new_cost = cost + 1 + manhattan_distance((new_row, new_col), end)
-                    parent_map[(new_row, new_col)] = current
-                    heapq.heappush(pq, (new_cost, (new_row, new_col)))
+    pGreen = posicoes.get(3)[0]
+    qGreen = posicoes.get(3)[1]
 
-    return None  # Sem caminho encontrado
+    pBlue = posicoes.get(4)[0]
+    qBlue = posicoes.get(4)[1]
 
-# Exemplo de matriz 10x10
-grid = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1,  0, 0, 0, 0, 0, 0, 2, 0, 1],
-    [1,  0, 4, 0, 0, 0, 0, 0, 0, 1],
-    [1,  0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1,  0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1,  0, 0, 0, 2, 0, 0, 0, 0, 1],
-    [1,  0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1,  0, 0, 0, 0, 0, 0, 4, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
+    pairs = [
+        ((pRed, qRed), 2),
+        ((pGreen, qGreen), 3),
+        ((pBlue, qBlue), 4)
+    ]
+    
+    connected_pairs, total_path_length = connect_pins(grid, pairs)
+    
+    write_results_to_file('resultado_X.txt', connected_pairs, total_path_length, grid)
+    
+    matrix = np.array(grid)
 
-# Encontrar caminho para pinos vermelhos (2, 2)
-start_red = (1, 7)
-end_red = (6, 4)
+    # gera a imagem
+    image = generate_image.generate_image(matrix)
 
-start_blue = (2,3)
-end_blue = (8,7)
-path_blue = find_path(grid, start_blue, end_blue)
-
-if path_blue:
-    print("Caminho encontrado para azul:", path_blue)
-else:
-    print("Nenhum caminho encontrado para azul.")
+    # salva a imagem
+    image.save("solucao_X.png")
+    # image.show()  # para mostrar a imagem

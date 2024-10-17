@@ -1,37 +1,34 @@
 import heapq
 import numpy as np
-from PIL import Image
 
 
-# Função para gerar a imagem a partir da matriz
-def generate_image(matrix):
-    # Define as cores
-    colors = {
-        0: (255, 255, 255),  # Branco
-        1: (0, 0, 0),        # Preto
-        2: (255, 0, 0),      # Vermelho
-        3: (0, 255, 0),      # Verde
-        4: (0, 0, 255)       # Azul
-    }
+def find_specific_pairs(grid, targets):
+    """
+    retorna as posições dos pinos
+    """
+    paired_positions = {target: [] for target in targets}
+    
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            value = grid[i][j]
+            if value in targets:
+                paired_positions[value].append((i, j))
+    
+ 
+    paired_positions = {key: positions for key, positions in paired_positions.items() if positions}
+    
+    return paired_positions
 
-    # Cria uma imagem RGB a partir da matriz
-    height, width = matrix.shape
-    image = Image.new("RGB", (width, height))
-
-    # Preenche a imagem com as cores da matriz
-    for y in range(height):
-        for x in range(width):
-            image.putpixel((x, y), colors[matrix[y, x]])
-
-    return image
-
-
-# Função para calcular a distância de Manhattan
 def manhattan_distance(start, end):
+    """
+    Função para calcular a distância de Manhattan
+    """
     return abs(start[0] - end[0]) + abs(start[1] - end[1])
 
-# Função para encontrar o caminho entre dois pinos
 def find_path(grid, start, end):
+    """
+    Função para encontrar o caminho entre dois pinos
+    """
     rows, cols = len(grid), len(grid[0])
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Cima, baixo, esquerda, direita
     visited = set()
@@ -63,13 +60,18 @@ def find_path(grid, start, end):
 
     return None, 0  # Sem caminho encontrado
 
-# Função para marcar o caminho na grade
 def mark_path(grid, path, marker):
+    """
+    Função para marcar o caminho na grade
+    """
     for row, col in path:
         grid[row][col] = marker
 
-# Função para conectar pinos e calcular estatísticas
 def connect_pins(grid, pairs):
+
+    """
+    Função para conectar pinos e calcular estatísticas
+    """
     connected_pairs = 0
     total_path_length = 0
 
@@ -79,69 +81,8 @@ def connect_pins(grid, pairs):
         if path:
             connected_pairs += 1
             total_path_length += path_length
-            mark_path(grid, path, marker)  # Marcar o caminho na grid
+            mark_path(grid, path, marker)
         else:
             print(f"Nenhum caminho encontrado para pinos em {start} e {end}.")
 
     return connected_pairs, total_path_length
-
-# Definição da grid
-grid = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
-
-# Coordenadas dos pinos
-start_red = (3, 3)
-end_red = (18, 8)
-
-start_green = (9, 18)
-end_green = (13, 3)
-
-start_blue = (4, 17)
-end_blue = (17, 2)
-
-# Lista de pares para conectar (start, end) e seus marcadores
-pairs = [
-    ((start_red, end_red), 2),   # Vermelho
-    ((start_green, end_green), 3),  # Verde
-    ((start_blue, end_blue), 4)    # Azul
-]
-
-# Conectar os pinos e obter estatísticas
-connected_pairs, total_path_length = connect_pins(grid, pairs)
-
-print(f"Número de pares conectados: {connected_pairs}")
-print(f"Comprimento total dos caminhos: {total_path_length}")
-
-# Exibir a grid com os caminhos marcados
-for row in grid:
-    print(row)
-
-# Converte a lista de listas em um array numpy
-matrix = np.array(grid)
-
-# Gera a imagem
-image = generate_image(matrix)
-
-# Salva a imagem
-image.save("output_image.png")
-image.show()  # Para mostrar a imagem
