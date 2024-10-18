@@ -13,7 +13,7 @@ def gerar_mapa(largura, altura):
 
     mapa = [[0 for _ in range(largura)] for _ in range(altura)]
 
-    # Garantindo pelo menos um par de cada cor
+
     cores = [2, 3, 4]
     for cor in cores:
         while True:
